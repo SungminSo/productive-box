@@ -4,14 +4,24 @@ on:
     types: [build-event]
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
+
 jobs:
   update-gist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - name: Update gist
-        uses: SungminSo/productive-box@master
+        uses: maxam2017/productive-box@master
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           TIMEZONE: Asia/Seoul
+
+  # Prevent GitHub from disabling this scheduled workflow after 60 days of repo inactivity
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1
